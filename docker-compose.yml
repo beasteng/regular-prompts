@@ -25,6 +25,18 @@ services:
       - ./litellm_config.yaml:/app/config.yaml
     command: ["--config", "/app/config.yaml", "--port", "4000"]
     env_file: [.env]
+    depends_on: [postgres]
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: litellm_postgres
+    environment:
+      POSTGRES_USER: litellm
+      POSTGRES_PASSWORD: litellm_pass
+      POSTGRES_DB: litellm
+    volumes:
+      - litellm_pgdata:/var/lib/postgresql/data
     restart: unless-stopped
 
   # --- optional: local models via Ollama (comment out if not needed) ---
@@ -38,4 +50,5 @@ services:
 
 volumes:
   n8n_data:
+  litellm_pgdata:
   # ollama_data:
