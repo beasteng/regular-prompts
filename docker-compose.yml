@@ -14,6 +14,10 @@ services:
       - N8N_BASIC_AUTH_USER=${N8N_USER}
       - N8N_BASIC_AUTH_PASSWORD=${N8N_PASSWORD}
       - N8N_DIAGNOSTICS_ENABLED=false
+      # Allow nodes (e.g. the LiteLLM HTTP node) to read env vars in expressions
+      # like $env.LITELLM_MASTER_KEY. n8n 2.29.x only honors this boolean flag
+      # for the $env expression provider (no per-var whitelist in this version).
+      - N8N_BLOCK_ENV_ACCESS_IN_NODE=false
     depends_on: [litellm]
     restart: unless-stopped
 
