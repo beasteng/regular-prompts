@@ -5,17 +5,17 @@
 model_list:
 
   # --- Option A: OpenRouter (one key, many models) [DEFAULT] ---
-#  - model_name: default
-#    litellm_params:
-#      model: openrouter/anthropic/claude-opus-4-8
-#      api_key: os.environ/OPENROUTER_API_KEY
-#      api_base: https://openrouter.ai/api/v1
+  # - model_name: default
+  #   litellm_params:
+  #     model: openrouter/anthropic/claude-opus-4-8
+  #     api_key: os.environ/OPENROUTER_API_KEY
+  #     api_base: https://openrouter.ai/api/v1
 
-  # --- Option B: Anthropic direct ---
-   - model_name: default
-     litellm_params:
-       model: claude-haiku-4.5
-       api_key: os.environ/ANTHROPIC_API_KEY
+  # --- Option B: Anthropic direct (claude-haiku-4.5) [previously enabled] ---
+  # - model_name: default
+  #   litellm_params:
+  #     model: claude-haiku-4.5
+  #     api_key: os.environ/ANTHROPIC_API_KEY
 
   # --- Option C: local Ollama (no external API key needed) ---
   # - model_name: default
@@ -23,12 +23,18 @@ model_list:
   #     model: ollama/llama3
   #     api_base: http://ollama:11434
 
-  # --- Option D: any other OpenRouter model ---
+  # --- Option D: Free Gemini for googling (Google Search grounding) ---
   # - model_name: default
   #   litellm_params:
-  #     model: openrouter/mistralai/mixtral-8x7b-instruct
-  #     api_key: os.environ/OPENROUTER_API_KEY
-  #     api_base: https://openrouter.ai/api/v1
+  #     model: gemini/gemini-2.5-flash
+  #     api_key: os.environ/GEMINI_API_KEY
+  #     google_search: true
+
+  # --- Option E: Gemini Flash (Google AI Studio key) [ENABLED] ---
+  - model_name: default
+    litellm_params:
+      model: gemini/gemini-3.1-flash-lite
+      api_key: os.environ/GEMINI_API_KEY
 
 litellm_settings:
   drop_params: true       # ignore unknown params silently
