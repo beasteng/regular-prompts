@@ -72,12 +72,24 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [ 960, 300 ]
+    },
+    {
+      "parameters": {
+        "mode": "markdownToHtml",
+        "markdown": "={{ $json.response }}"
+      },
+      "id": "render-markdown",
+      "name": "Render Markdown",
+      "type": "n8n-nodes-base.markdown",
+      "typeVersion": 1,
+      "position": [ 1200, 300 ]
     }
   ],
   "connections": {
     "Schedule Trigger": { "main": [ [ { "node": "Set prompt",       "type": "main", "index": 0 } ] ] },
     "Set prompt":       { "main": [ [ { "node": "LiteLLM",          "type": "main", "index": 0 } ] ] },
-    "LiteLLM":          { "main": [ [ { "node": "Extract response", "type": "main", "index": 0 } ] ] }
+    "LiteLLM":          { "main": [ [ { "node": "Extract response", "type": "main", "index": 0 } ] ] },
+    "Extract response": { "main": [ [ { "node": "Render Markdown",  "type": "main", "index": 0 } ] ] }
   },
   "settings": { "executionOrder": "v1" },
   "active": false
