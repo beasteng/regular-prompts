@@ -1,25 +1,55 @@
 services:
+  minio:
+    image: minio/minio
+    container_name: minio
+    ports: ["9000:9000", "9001:9001"]
+    environment:
+      MINIO_ROOT_USER: ${AWS_ACCESS_KEY_ID}
+      MINIO_ROOT_PASSWORD: ${AWS_SECRET_ACCESS_KEY}
+      MINIO_DEFAULT_BUCKETS: ${S3_BUCKET}
+    command: ["server", "/data", "--console-address", ":9001"]
+    volumes:
+      - minio_data:/data
+    restart: unless-stopped
+
   n8n:
     image: docker.n8n.io/n8nio/n8n
     container_name: n8n
     ports: ["5678:5678"]
     env_file: [.env]
     environment:
-      - N8N_HOST=${N8N_HOST}
-      - N8N_PORT=5678
-      - N8N_PROTOCOL=http
-      - WEBHOOK_URL=http://${N8N_HOST}:5678/
-      - GENERIC_TIMEZONE=${TZ}
-      - N8N_BASIC_AUTH_ACTIVE=true
-      - N8N_BASIC_AUTH_USER=${N8N_USER}
-      - N8N_BASIC_AUTH_PASSWORD=${N8N_PASSWORD}
-      - N8N_DIAGNOSTICS_ENABLED=false
-      # Allow nodes (e.g. the LiteLLM HTTP node) to read env vars in expressions
-      # like $env.LITELLM_MASTER_KEY. n8n 2.29.x only honors this boolean flag
-      # for the $env expression provider (no per-var whitelist in this version).
-      - N8N_BLOCK_ENV_ACCESS_IN_NODE=false
+      N8N_HOST: ${N8N_HOST}
+      N8N_PORT: "5678"
+      N8N_PROTOCOL: http
+      WEBHOOK_URL: http://${N8N_HOST}:5678/
+      GENERIC_TIMEZONE: ${TZ}
+      N8N_BASIC_AUTH_ACTIVE: "true"
+      N8N_BASIC_AUTH_USER: ${N8N_USER}
+      N8N_BASIC_AUTH_PASSWORD: ${N8N_PASSWORD}
+      N8N_DIAGNOSTICS_ENABLED: "false"
+      N8N_BLOCK_ENV_ACCESS_IN_NODE: "false"
+      # ----------------------------------------------------------------
+      # Inject S3 credential from env vars on every startup.
+      # The credential is named "S3 Storage" — matches the workflow node.
+      # Works for both MinIO (S3_ENDPOINT set) and real AWS (S3_ENDPOINT="").
+      # ----------------------------------------------------------------
+      N8N_CREDENTIALS_OVERWRITE_ENDPOINT: "http://localhost:5678"
+      N8N_CREDENTIALS_OVERWRITE_DATA: >
+        {
+          "s3": {
+            "S3 Storage": {
+              "accessKeyId": "${AWS_ACCESS_KEY_ID}",
+              "secretAccessKey": "${AWS_SECRET_ACCESS_KEY}",
+              "region": "${AWS_REGION}",
+              "endpoint": "${S3_ENDPOINT}",
+              "forcePathStyle": true
+            }
+          }
+        }
     depends_on: [litellm]
     restart: unless-stopped
+    volumes:
+      - n8n_data:/home/node/.n8n
 
   litellm:
     image: ghcr.io/berriai/litellm:main-latest
@@ -43,7 +73,7 @@ services:
       - litellm_pgdata:/var/lib/postgresql/data
     restart: unless-stopped
 
-  # --- optional: local models via Ollama (comment out if not needed) ---
+  # --- optional: local models via Ollama ---
   # ollama:
   #   image: ollama/ollama
   #   container_name: ollama
@@ -55,4 +85,5 @@ services:
 volumes:
   n8n_data:
   litellm_pgdata:
+  minio_data:
   # ollama_data:
