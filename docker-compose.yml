@@ -6,11 +6,55 @@ services:
     environment:
       MINIO_ROOT_USER: ${AWS_ACCESS_KEY_ID}
       MINIO_ROOT_PASSWORD: ${AWS_SECRET_ACCESS_KEY}
-      MINIO_DEFAULT_BUCKETS: ${S3_BUCKET}
+      # MINIO_DEFAULT_BUCKETS removed — s3-init handles bucket creation for both modes
     command: ["server", "/data", "--console-address", ":9001"]
     volumes:
       - minio_data:/data
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+
+  s3-init:
+    image: amazon/aws-cli:latest
+    container_name: s3-init
+    env_file: [.env]
+    environment:
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_DEFAULT_REGION: ${AWS_REGION}
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        # Build endpoint flag — empty means real AWS, set means MinIO/custom
+        if [ -n "$S3_ENDPOINT" ]; then
+          ENDPOINT_FLAG="--endpoint-url $S3_ENDPOINT"
+        else
+          ENDPOINT_FLAG=""
+        fi
+
+        echo "Waiting for S3 endpoint to be ready..."
+        until aws s3 ls $ENDPOINT_FLAG > /dev/null 2>&1; do
+          echo "  ...not ready yet, retrying in 3s"
+          sleep 3
+        done
+
+        echo "Creating bucket '${S3_BUCKET}' if it does not exist..."
+        if aws s3 ls $ENDPOINT_FLAG "s3://${S3_BUCKET}" > /dev/null 2>&1; then
+          echo "  Bucket already exists, skipping."
+        else
+          aws s3 mb $ENDPOINT_FLAG "s3://${S3_BUCKET}" \
+            ${AWS_REGION:+--region $AWS_REGION}
+          echo "  Bucket created."
+        fi
+    # Only runs when MinIO is up (skipped automatically if minio is commented out)
+    depends_on:
+      minio:
+        condition: service_healthy
+    restart: "no"   # one-shot — never restart after success
 
   n8n:
     image: docker.n8n.io/n8nio/n8n
@@ -28,11 +72,6 @@ services:
       N8N_BASIC_AUTH_PASSWORD: ${N8N_PASSWORD}
       N8N_DIAGNOSTICS_ENABLED: "false"
       N8N_BLOCK_ENV_ACCESS_IN_NODE: "false"
-      # ----------------------------------------------------------------
-      # Inject S3 credential from env vars on every startup.
-      # The credential is named "S3 Storage" — matches the workflow node.
-      # Works for both MinIO (S3_ENDPOINT set) and real AWS (S3_ENDPOINT="").
-      # ----------------------------------------------------------------
       N8N_CREDENTIALS_OVERWRITE_ENDPOINT: "http://localhost:5678"
       N8N_CREDENTIALS_OVERWRITE_DATA: >
         {
@@ -46,7 +85,11 @@ services:
             }
           }
         }
-    depends_on: [litellm]
+    depends_on:
+      s3-init:
+        condition: service_completed_successfully
+      litellm:
+        condition: service_started
     restart: unless-stopped
     volumes:
       - n8n_data:/home/node/.n8n
@@ -73,17 +116,7 @@ services:
       - litellm_pgdata:/var/lib/postgresql/data
     restart: unless-stopped
 
-  # --- optional: local models via Ollama ---
-  # ollama:
-  #   image: ollama/ollama
-  #   container_name: ollama
-  #   ports: ["11434:11434"]
-  #   volumes:
-  #     - ollama_data:/root/.ollama
-  #   restart: unless-stopped
-
 volumes:
   n8n_data:
   litellm_pgdata:
   minio_data:
-  # ollama_data:
