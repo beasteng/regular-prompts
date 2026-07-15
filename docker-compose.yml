@@ -12,49 +12,48 @@ services:
       - minio_data:/data
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/ready"]
       interval: 5s
       timeout: 5s
-      retries: 10
-      start_period: 5s
+      retries: 12
+      start_period: 10s
 
   s3-init:
     image: amazon/aws-cli:latest
     container_name: s3-init
-    env_file: [.env]
     environment:
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
       AWS_DEFAULT_REGION: ${AWS_REGION}
+      S3_ENDPOINT: ${S3_ENDPOINT}
+      S3_BUCKET: ${S3_BUCKET}
     entrypoint: ["/bin/sh", "-c"]
     command:
       - |
-        # Build endpoint flag — empty means real AWS, set means MinIO/custom
-        if [ -n "$S3_ENDPOINT" ]; then
-          ENDPOINT_FLAG="--endpoint-url $S3_ENDPOINT"
+        if [ -n "$$S3_ENDPOINT" ]; then
+          ENDPOINT_FLAG="--endpoint-url $$S3_ENDPOINT"
         else
           ENDPOINT_FLAG=""
         fi
 
         echo "Waiting for S3 endpoint to be ready..."
-        until aws s3 ls $ENDPOINT_FLAG > /dev/null 2>&1; do
+        until aws s3api list-buckets $$ENDPOINT_FLAG > /dev/null 2>&1; do
           echo "  ...not ready yet, retrying in 3s"
           sleep 3
         done
 
-        echo "Creating bucket '${S3_BUCKET}' if it does not exist..."
-        if aws s3 ls $ENDPOINT_FLAG "s3://${S3_BUCKET}" > /dev/null 2>&1; then
-          echo "  Bucket already exists, skipping."
+        echo "S3 ready. Creating bucket '$$S3_BUCKET' if it does not exist..."
+        if aws s3api head-bucket $$ENDPOINT_FLAG --bucket "$$S3_BUCKET" > /dev/null 2>&1; then
+          echo "  Bucket '$$S3_BUCKET' already exists, skipping."
         else
-          aws s3 mb $ENDPOINT_FLAG "s3://${S3_BUCKET}" \
-            ${AWS_REGION:+--region $AWS_REGION}
-          echo "  Bucket created."
+          aws s3 mb $$ENDPOINT_FLAG "s3://$$S3_BUCKET" \
+            $${AWS_REGION:+--region $$AWS_REGION}
+          echo "  Bucket '$$S3_BUCKET' created successfully."
         fi
-    # Only runs when MinIO is up (skipped automatically if minio is commented out)
     depends_on:
       minio:
         condition: service_healthy
-    restart: "no"   # one-shot — never restart after success
+    restart: "no"
 
   n8n:
     image: docker.n8n.io/n8nio/n8n
