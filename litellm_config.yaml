@@ -35,6 +35,8 @@ model_list:
     litellm_params:
       model: gemini/gemini-3.1-flash-lite
       api_key: os.environ/GEMINI_API_KEY
+      web_search_options:
+        search_context_size: "medium" # Options: "low", "medium", "high"
 
 litellm_settings:
   drop_params: true       # ignore unknown params silently
