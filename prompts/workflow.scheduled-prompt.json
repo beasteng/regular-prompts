@@ -90,7 +90,7 @@
         "bucketName": "={{ $env.S3_BUCKET || 'rendered-html' }}",
         "fileName": "={{ $now.toISO() }}.html",
         "binaryData": false,
-        "fileContent": "={{ $json }}",
+        "fileContent": "={{ $json.data }}",
         "additionalFields": {
           "region": "={{ $env.AWS_REGION || 'us-east-1' }}",
           "customEndpoint": "={{ $env.S3_ENDPOINT || '' }}"
