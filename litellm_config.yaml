@@ -34,7 +34,12 @@ model_list:
   - model_name: default
     litellm_params:
       model: gemini/gemini-3.5-flash
-#      model: gemini/gemini-3.1-flash-lite
+      api_key: os.environ/GEMINI_API_KEY
+      web_search_options:
+        search_context_size: "medium" # Options: "low", "medium", "high"
+  - model_name: fallback
+    litellm_params:
+      model: gemini/gemini-3.1-flash-lite
       api_key: os.environ/GEMINI_API_KEY
       web_search_options:
         search_context_size: "medium" # Options: "low", "medium", "high"
@@ -45,3 +50,6 @@ litellm_settings:
 
 general_settings:
   master_key: os.environ/LITELLM_MASTER_KEY   # any random string; n8n sends this as Bearer token
+
+router_settings:
+  fallbacks: [{"default": ["fallback"]}]
