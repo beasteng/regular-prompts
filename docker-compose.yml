@@ -15,6 +15,39 @@ services:
       retries: 12
       start_period: 10s
 
+  minio-init:
+    image: minio/mc:latest
+    depends_on:
+      - s3-init
+    environment:
+      S3_BUCKET: ${S3_BUCKET}
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    entrypoint: >
+      /bin/sh -c "
+      until mc alias set local http://minio:9000 \"$$MINIO_ROOT_USER\" \"$$MINIO_ROOT_PASSWORD\"; do
+        echo 'waiting for minio...'; sleep 1;
+      done;
+      mc mb --ignore-existing local/$$S3_BUCKET;
+      mc anonymous set download local/$$S3_BUCKET;
+      echo 'done';
+      "
+    restart: "no"
+
+  s3www:
+      image: y4m4/s3www:latest
+      depends_on:
+        - minio
+        - minio-init
+      ports: ["8080:8080"]
+      env_file: [.env]
+      command:
+        - "-endpoint=${S3_ENDPOINT}"
+        - "-accessKey=${MINIO_ROOT_USER}"
+        - "-secretKey=${MINIO_ROOT_PASSWORD}"
+        - "-bucket=${S3_BUCKET}"
+        - "-address=0.0.0.0:8080"
+
   s3-init:
     image: amazon/aws-cli:latest
     container_name: s3-init
@@ -104,3 +137,4 @@ volumes:
   n8n_data:
   litellm_pgdata:
   minio_data:
+  filestash_data:
