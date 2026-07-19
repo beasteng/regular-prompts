@@ -1,0 +1,208 @@
+{
+  "name": "Prompt to S3",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "prompt",
+              "type": "string",
+              "value": "Summarize the most important technology news from the last 24 hours in 5 bullet points, each with a source link."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "54e10393-59a3-42bd-8581-c18b5205c741",
+      "name": "Set prompt",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        240,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://litellm:4000/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ 'Bearer ' + $env.LITELLM_MASTER_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"default\",\n  \"max_tokens\": null,\n  \"messages\": [\n    { \"role\": \"user\", \"content\": {{ JSON.stringify($json.prompt) }} }\n  ]\n}",
+        "options": {}
+      },
+      "id": "16e0ae8d-453a-4c73-b300-3f191b484ea5",
+      "name": "LiteLLM",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        480,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "o1",
+              "name": "response",
+              "type": "string",
+              "value": "={{ $json.choices && $json.choices[0] ? $json.choices[0].message.content : JSON.stringify($json) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "9c4271ac-8354-4019-9030-cc35ade0f084",
+      "name": "Extract response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        720,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "markdownToHtml",
+        "markdown": "={{ $json.response }}",
+        "options": {}
+      },
+      "id": "4d50e05f-684a-47f6-932f-adb716aa5f7f",
+      "name": "Render Markdown",
+      "type": "n8n-nodes-base.markdown",
+      "typeVersion": 1,
+      "position": [
+        960,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "upload",
+        "bucketName": "={{ $env.S3_BUCKET || 'rendered-html' }}",
+        "fileName": "={{ $now.toISO() }}.html",
+        "binaryData": false,
+        "fileContent": "={{ $json.data }}",
+        "additionalFields": {},
+        "tagsUi": {
+          "tagsValues": []
+        }
+      },
+      "id": "e4b8316d-7fdd-4d9d-9b19-5bb2b4a3bad2",
+      "name": "Upload to S3",
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        1200,
+        0
+      ],
+      "credentials": {
+        "s3": {
+          "id": "PHdWvL5exC78NlrA",
+          "name": "Minio"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        32,
+        0
+      ],
+      "id": "02167aed-43a3-403d-95d1-5fac6f6dc20b",
+      "name": "When Executed by Another Workflow"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Set prompt": {
+      "main": [
+        [
+          {
+            "node": "LiteLLM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LiteLLM": {
+      "main": [
+        [
+          {
+            "node": "Extract response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract response": {
+      "main": [
+        [
+          {
+            "node": "Render Markdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Render Markdown": {
+      "main": [
+        [
+          {
+            "node": "Upload to S3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Set prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "3a75eb9c-f900-40d7-8ce8-852b289baa55",
+  "meta": {
+    "instanceId": "dabd402852eb1bd9b1f09402964ab32cfd117264b664cc819428ea367e88cf33"
+  },
+  "nodeGroups": [],
+  "id": "oGl82VaJHbiAY8kQ",
+  "tags": []
+}

@@ -1,0 +1,24 @@
+{
+	"users" : [
+		{
+			"id" : 1,
+			"username" : "lion",
+			"email": "morskoy.a@gmail.com"
+		}
+	],
+
+	"prompts" : [
+		{
+			"user_id": 1,
+			"name": "Top-5 Tech last 24h",
+            "topic": "tech",
+			"prompt": "Summarize the most important technology news from the last 24 hours in 10 bullet points, each with a source link."
+		},
+		{
+			"user_id": 1,
+			"name": "Portugal AIMA, SEF, immigration, nomads last 24h",
+            "topic": "AIMA",
+			"prompt": "Summarize the most important news from Portugal about changes in AIMA, SEF, temporary protection for Ukrainians, digital nomads visas from the last 24 hours in 10 bullet points, each with a source link, in english."
+		}
+	]
+}
