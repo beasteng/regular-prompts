@@ -137,4 +137,3 @@ volumes:
   n8n_data:
   litellm_pgdata:
   minio_data:
-  filestash_data:
