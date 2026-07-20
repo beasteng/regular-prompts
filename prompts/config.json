@@ -10,7 +10,7 @@
 	"prompts" : [
 		{
 			"user_id": 1,
-			"name": "Top-5 Tech last 24h",
+			"name": "Top-10 Tech last 24h",
             "topic": "tech",
 			"prompt": "Summarize the most important technology news from the last 24 hours in 10 bullet points, each with a source link."
 		},
