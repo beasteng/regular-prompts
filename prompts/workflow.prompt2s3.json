@@ -8,23 +8,23 @@
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "typeVersion": 1.2,
       "position": [
-        0,
-        0
+        -2256,
+        1280
       ],
-      "id": "02167aed-43a3-403d-95d1-5fac6f6dc20b",
+      "id": "efb27eed-4ca4-4d41-8a8b-f69b3b51305f",
       "name": "When Executed by Another Workflow"
     },
     {
       "parameters": {
-        "jsCode": "const items = $input.all();\n\nif (!items || items.length === 0) {\n  throw new Error('The sub-workflow received no input item.');\n}\n\nconst unit = items[0].json || {};\n\nfor (const field of ['username', 'topic', 'prompt_name', 'prompt']) {\n  const value = unit[field];\n  if (typeof value !== 'string' || !value.trim()) {\n    throw new Error(`Missing or invalid unit-of-work field: ${field}`);\n  }\n}\n\nfunction sanitize(value) {\n  // NFKC normalize (JS handles unicode natively)\n  let result = String(value).normalize('NFKC').trim();\n\n  // Replace backslashes and forward slashes with dash\n  result = result.replace(/[\\\\/]+/g, '-');\n\n  // Remove control characters (< 32) and DEL (127)\n  result = result.split('').filter(c => c.charCodeAt(0) >= 32 && c.charCodeAt(0) !== 127).join('');\n\n  // Replace whitespace runs with underscore\n  result = result.replace(/\\s+/g, '_');\n\n  // Replace any character that isn't alphanumeric, dot, underscore, or dash with dash\n  result = result.replace(/[^a-zA-Z0-9._-]/g, '-');\n\n  // Collapse multiple dashes\n  result = result.replace(/-+/g, '-');\n\n  // Strip leading/trailing dashes, underscores, dots\n  result = result.replace(/^[\\-_.]+|[\\-_.]+$/g, '');\n\n  return result || 'unnamed';\n}\n\nconst now = new Date();\nconst currentDate = now.toISOString().slice(0, 10); // YYYY-MM-DD UTC\n\nconst usernameKey = sanitize(unit.username);\nconst topicKey = sanitize(unit.topic);\nconst promptNameKey = sanitize(unit.prompt_name);\n\nreturn [{\n  json: {\n    user_id: unit.user_id,\n    username: unit.username,\n    email: unit.email,\n    topic: unit.topic,\n    prompt_name: unit.prompt_name,\n    prompt: unit.prompt,\n    date: currentDate,\n    path1: `${usernameKey}/${topicKey}/${promptNameKey}/${currentDate}.html`,\n    path2: `${usernameKey}/${currentDate}/${topicKey}/${promptNameKey}.html`\n  }\n}];"
+        "jsCode": "const items = $input.all();\n\nif (!items || items.length === 0) {\n  throw new Error('The sub-workflow received no input item.');\n}\n\nconst unit = items[0].json || {};\n\nfor (const field of ['username', 'topic', 'prompt_name', 'prompt']) {\n  const value = unit[field];\n  if (typeof value !== 'string' || !value.trim()) {\n    throw new Error(`Missing or invalid unit-of-work field: ${field}`);\n  }\n}\n\nfunction sanitize(value) {\n  // NFKC normalize (JS handles unicode natively)\n  let result = String(value).normalize('NFKC').trim();\n\n  // Replace backslashes and forward slashes with dash\n  result = result.replace(/[\\\\/]+/g, '-');\n\n  // Remove control characters (< 32) and DEL (127)\n  result = result.split('').filter(c => c.charCodeAt(0) >= 32 && c.charCodeAt(0) !== 127).join('');\n\n  // Replace whitespace runs with underscore\n  result = result.replace(/\\s+/g, '_');\n\n  // Replace any character that isn't alphanumeric, dot, underscore, or dash with dash\n  result = result.replace(/[^a-zA-Z0-9._-]/g, '-');\n\n  // Collapse multiple dashes\n  result = result.replace(/-+/g, '-');\n\n  // Strip leading/trailing dashes, underscores, dots\n  result = result.replace(/^[\\-_.]+|[\\-_.]+$/g, '');\n\n  return result || 'unnamed';\n}\n\nconst now = new Date();\nconst currentDate = now.toISOString().slice(0, 10); // YYYY-MM-DD UTC\n\nconst usernameKey = sanitize(unit.username);\nconst topicKey = sanitize(unit.topic);\nconst promptNameKey = sanitize(unit.prompt_name);\n\nreturn [{\n  json: {\n    user_id: unit.user_id,\n    username: unit.username,\n    email: unit.email,\n    topic: unit.topic,\n    prompt_name: unit.prompt_name,\n    prompt: unit.prompt,\n    date: currentDate,\n    path1: `${usernameKey}/by-topic/${topicKey}/${promptNameKey}/${currentDate}.html`,\n    path2: `${usernameKey}/by-date/${currentDate}/${topicKey}/${promptNameKey}.html`\n  }\n}];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        240,
-        0
+        -2016,
+        1280
       ],
-      "id": "54e10393-59a3-42bd-8581-c18b5205c741",
+      "id": "e95eba3b-d06f-46dc-8b5e-d3b4021b438a",
       "name": "Prepare Unit of Work"
     },
     {
@@ -49,13 +49,13 @@
         "jsonBody": "={{ { model: 'default', max_tokens: null, messages: [{ role: 'user', content: $json.prompt }] } }}",
         "options": {}
       },
-      "id": "16e0ae8d-453a-4c73-b300-3f191b484ea5",
+      "id": "296f500d-61eb-49e9-b975-0799cce26d70",
       "name": "LiteLLM",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        480,
-        0
+        -1776,
+        1280
       ]
     },
     {
@@ -65,10 +65,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        720,
-        0
+        -1536,
+        1280
       ],
-      "id": "9c4271ac-8354-4019-9030-cc35ade0f084",
+      "id": "6f62f700-25a9-4000-b422-16d13f397dc0",
       "name": "Extract Response"
     },
     {
@@ -77,13 +77,13 @@
         "markdown": "={{ $json.response }}",
         "options": {}
       },
-      "id": "4d50e05f-684a-47f6-932f-adb716aa5f7f",
+      "id": "cfe65f3c-0076-4eb9-97de-fff635eb46dd",
       "name": "Render Markdown",
       "type": "n8n-nodes-base.markdown",
       "typeVersion": 1,
       "position": [
-        960,
-        0
+        -1296,
+        1280
       ]
     },
     {
@@ -93,10 +93,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1200,
-        0
+        -1056,
+        1280
       ],
-      "id": "72aa0361-d39b-4129-91a8-819d4542810a",
+      "id": "91d8898c-2389-4af8-a7cd-d613d21ecea0",
       "name": "Prepare Uploads"
     },
     {
@@ -111,13 +111,13 @@
           "tagsValues": []
         }
       },
-      "id": "e4b8316d-7fdd-4d9d-9b19-5bb2b4a3bad2",
+      "id": "e8f5c41a-3991-41f4-86e1-2537a7e6a249",
       "name": "Upload to S3 - Prompt Path",
       "type": "n8n-nodes-base.s3",
       "typeVersion": 1,
       "position": [
-        1440,
-        -120
+        -816,
+        1152
       ],
       "credentials": {
         "s3": {
@@ -138,13 +138,13 @@
           "tagsValues": []
         }
       },
-      "id": "0bfd89c6-1f33-4d13-a7f2-74e2b9243566",
+      "id": "b4492416-1bd0-4a85-934d-416e7f06ede4",
       "name": "Upload to S3 - Date Path",
       "type": "n8n-nodes-base.s3",
       "typeVersion": 1,
       "position": [
-        1440,
-        120
+        -816,
+        1392
       ],
       "credentials": {
         "s3": {
@@ -154,16 +154,14 @@
       }
     },
     {
-      "parameters": {
-        "numberInputs": 2
-      },
+      "parameters": {},
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        1680,
-        0
+        -576,
+        1280
       ],
-      "id": "e51a5129-355a-4789-a45e-a82dac467958",
+      "id": "18bb0519-116f-47cc-94d5-c6d22583fe78",
       "name": "Wait for Both Uploads"
     },
     {
@@ -173,10 +171,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1920,
-        0
+        -336,
+        1280
       ],
-      "id": "6447ec5c-31a2-4e04-8700-13642120f267",
+      "id": "8422cb99-93ab-4d2f-8ba6-551a7720ba7f",
       "name": "Return Result"
     }
   ],
@@ -287,17 +285,17 @@
       ]
     }
   },
-  "active": true,
+  "active": false,
   "settings": {
     "executionOrder": "v1",
     "binaryMode": "separate",
     "availableInMCP": false
   },
-  "versionId": "183d8ffc-b76d-464e-afb0-6db54d765822",
+  "versionId": "f0bf0217-c909-406d-8a80-7100b623229e",
   "meta": {
     "instanceId": "dabd402852eb1bd9b1f09402964ab32cfd117264b664cc819428ea367e88cf33"
   },
   "nodeGroups": [],
-  "id": "oGl82VaJHbiAY8kQ",
+  "id": "hnaQf7RvpXUL5URh",
   "tags": []
 }
