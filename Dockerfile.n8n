@@ -1,0 +1,13 @@
+FROM n8nio/n8n:latest
+USER root
+
+# Restore apk from Alpine (n8n uses Alpine 3.22)
+COPY --from=alpine:3.22 /sbin/apk /sbin/apk
+COPY --from=alpine:3.22 /lib/apk /lib/apk
+COPY --from=alpine:3.22 /etc/apk /etc/apk
+
+# Now install Python + your packages
+RUN apk add --no-cache python3 py3-pip && \
+    pip3 install --no-cache-dir requests pandas yfinance tqdm --break-system-packages
+
+USER node
