@@ -102,11 +102,6 @@ services:
         N8N_DIAGNOSTICS_ENABLED: "false"
         N8N_BLOCK_ENV_ACCESS_IN_NODE: "false"
         N8N_API_KEY: ${N8N_API_KEY}
-        N8N_RUNNERS_ENABLED: "true"
-        N8N_RUNNERS_MODE: external
-        N8N_RUNNERS_AUTH_TOKEN: test-runner-token
-        N8N_RUNNERS_BROKER_LISTEN_ADDRESS: 0.0.0.0
-        N8N_RUNNERS_BROKER_PORT: "5679"
       depends_on:
         s3-init:
           condition: service_completed_successfully
@@ -115,16 +110,6 @@ services:
       restart: unless-stopped
       volumes:
         - n8n_data:/home/node/.n8n
-
-  n8n-runner:
-    image: n8nio/runners:latest
-    container_name: n8n-runner
-    environment:
-      N8N_RUNNERS_TASK_BROKER_URI: http://n8n:5679
-      N8N_RUNNERS_AUTH_TOKEN: test-runner-token
-    depends_on:
-      - n8n
-    restart: unless-stopped
 
   litellm:
     image: ghcr.io/berriai/litellm:main-latest

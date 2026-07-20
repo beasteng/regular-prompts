@@ -10,7 +10,57 @@
         0
       ],
       "id": "e1617999-c1a6-412b-8bb9-7cc6147e1d75",
-      "name": "When clicking ‘Execute workflow’"
+      "name": "When clicking 'Execute workflow'"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "bucketName": "prompt-monitor-assets",
+        "fileKey": "config.json",
+        "binaryPropertyName": "data",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        240,
+        0
+      ],
+      "id": "8b18a93a-fb36-45a4-87ec-d6fbe5944833",
+      "name": "Download Config from S3",
+      "credentials": {
+        "s3": {
+          "id": "PHdWvL5exC78NlrA",
+          "name": "Minio"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nif (!items || items.length === 0) {\n  throw new Error('The S3 node returned no items.');\n}\n\nconst item = items[0];\nconst binary = item.binary || {};\n\nlet propertyName;\nif ('data' in binary) {\n  propertyName = 'data';\n} else {\n  const keys = Object.keys(binary);\n  propertyName = keys.length > 0 ? keys[0] : null;\n}\n\nif (!propertyName) {\n  throw new Error('The S3 node did not return config.json as binary data.');\n}\n\nconst rawBuffer = await this.helpers.getBinaryDataBuffer(0, propertyName);\nconst raw = rawBuffer.toString('utf8').replace(/^\\uFEFF/, '');\n\nlet config;\ntry {\n  config = JSON.parse(raw);\n} catch (error) {\n  throw new Error(`Could not parse s3://prompt-monitor-assets/config.json: ${error.message}`);\n}\n\nconst users = config.users;\nconst prompts = config.prompts;\n\nif (!Array.isArray(users)) {\n  throw new Error('config.users must be an array.');\n}\n\nif (!Array.isArray(prompts)) {\n  throw new Error('config.prompts must be an array.');\n}\n\nconst usersById = {};\nfor (const user of users) {\n  usersById[String(user.id)] = user;\n}\n\nconst output = [];\n\nfor (let index = 0; index < prompts.length; index++) {\n  const promptData = prompts[index];\n  const userId = promptData.user_id;\n  const user = usersById[String(userId)];\n\n  if (!user) {\n    throw new Error(`No user found for prompts[${index}].user_id=${userId}`);\n  }\n\n  const username = user.username;\n  const promptName = promptData.name;\n  const topic = promptData.topic;\n  const promptText = promptData.prompt;\n\n  if (!username) {\n    throw new Error(`Missing username for user ID ${userId}`);\n  }\n\n  if (!promptName || !topic || !promptText) {\n    throw new Error(`Incomplete prompt data at prompts[${index}]`);\n  }\n\n  output.push({\n    json: {\n      user_id: user.id,\n      username: username,\n      email: user.email,\n      prompt_name: promptName,\n      topic: topic,\n      prompt: promptText\n    }\n  });\n}\n\nreturn output;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        0
+      ],
+      "id": "cc0f966f-cf9e-49ad-a904-b3a5f432f879",
+      "name": "Create Units of Work"
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        720,
+        0
+      ],
+      "id": "91c0b1af-0675-4c59-851f-611a68e2be77",
+      "name": "Loop Over Units of Work"
     },
     {
       "parameters": {
@@ -22,7 +72,7 @@
           "cachedResultName": "Prompt to S3"
         },
         "workflowInputs": {
-          "mappingMode": "defineBelow",
+          "mappingMode": "passthrough",
           "value": {},
           "matchingColumns": [],
           "schema": [],
@@ -36,8 +86,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.3,
       "position": [
-        208,
-        0
+        960,
+        80
       ],
       "id": "871e0cd7-b1e7-42ab-a9c5-49ada777e474",
       "name": "Call 'Prompt to S3'"
@@ -45,11 +95,56 @@
   ],
   "pinData": {},
   "connections": {
-    "When clicking ‘Execute workflow’": {
+    "When clicking 'Execute workflow'": {
       "main": [
         [
           {
+            "node": "Download Config from S3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Config from S3": {
+      "main": [
+        [
+          {
+            "node": "Create Units of Work",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Units of Work": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Units of Work",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Units of Work": {
+      "main": [
+        [],
+        [
+          {
             "node": "Call 'Prompt to S3'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call 'Prompt to S3'": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Units of Work",
             "type": "main",
             "index": 0
           }
@@ -63,7 +158,7 @@
     "binaryMode": "separate",
     "availableInMCP": false
   },
-  "versionId": "e2664b4d-9f34-4534-bad6-5b810a1a46bf",
+  "versionId": "c3a1e36c-b8d8-4a9c-827b-898b68262519",
   "meta": {
     "instanceId": "dabd402852eb1bd9b1f09402964ab32cfd117264b664cc819428ea367e88cf33"
   },
