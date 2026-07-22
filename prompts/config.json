@@ -12,13 +12,13 @@
 			"user_id": 1,
 			"name": "Top-10 Tech last 24h",
             "topic": "tech",
-			"prompt": "Summarize the most important technology news from the last 24 hours in 10 bullet points, each with a source link."
+			"prompt": "Summarize the most important technology news from the last 24 hours in 10 bullet points in English. Each bullet should have a link to data source so I can open and read original."
 		},
 		{
 			"user_id": 1,
-			"name": "Portugal AIMA, SEF, immigration, nomads last 24h",
+			"name": "Top 20 Portugal AIMA, SEF, immigration, nomads last 24h",
             "topic": "AIMA",
-			"prompt": "Summarize the most important news from Portugal about changes in AIMA, SEF, temporary protection for Ukrainians, digital nomads visas from the last 24 hours in 10 bullet points, each with a source link, in english."
+			"prompt": "Summarize the most important news from Portugal about changes in AIMA, SEF, temporary protection for Ukrainians, digital nomads visas from the last 24 hours in 20 bullet points in English. Each bullet should have a link to data source so I can open and read original."
 		}
 	]
 }
