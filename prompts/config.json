@@ -10,12 +10,6 @@
 	"prompts" : [
 		{
 			"user_id": 1,
-			"name": "Top-10 Tech last 24h",
-            "topic": "tech",
-			"prompt": "Summarize the most important technology news published in the LAST 24 HOURS ONLY in 10 bullet points in English. STRICTLY EXCLUDE any news older than 24 hours. Each bullet should have a link to the data source so I can open and read the original."
-		},
-		{
-			"user_id": 1,
 			"name": "Top 20 Portugal AIMA, SEF, immigration, nomads last 24h",
             "topic": "AIMA",
 			"prompt": "Summarize the most important news from Portugal about changes in AIMA, SEF, temporary protection for Ukrainians, digital nomads visas published in the LAST 24 HOURS ONLY in 20 bullet points in English. STRICTLY EXCLUDE any news older than 24 hours. Each bullet should have a link to the data source so I can open and read the original."

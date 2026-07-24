@@ -46,7 +46,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ { model: 'default', web_search_options: {enabled: true},  max_tokens: null, messages: [{ role: 'user', content: $json.prompt }] } }}",
+        "jsonBody": "={{ { model: 'default', web_search_options: {enabled: true, search_context_size: 'low'},  max_tokens: null, messages: [{ role: 'user', content: $json.prompt }] } }}",
         "options": {}
       },
       "id": "296f500d-61eb-49e9-b975-0799cce26d70",
