@@ -34,20 +34,6 @@ services:
       "
     restart: "no"
 
-  s3www:
-      image: y4m4/s3www:latest
-      depends_on:
-        - minio
-        - minio-init
-      ports: ["8080:8080"]
-      env_file: [.env]
-      command:
-        - "-endpoint=${S3_ENDPOINT}"
-        - "-accessKey=${MINIO_ROOT_USER}"
-        - "-secretKey=${MINIO_ROOT_PASSWORD}"
-        - "-bucket=${S3_BUCKET}"
-        - "-address=0.0.0.0:8080"
-
   s3-init:
     image: amazon/aws-cli:latest
     container_name: s3-init
