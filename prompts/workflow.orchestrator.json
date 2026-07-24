@@ -5,10 +5,7 @@
       "parameters": {},
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
-      "position": [
-        2256,
-        1232
-      ],
+      "position": [2256, 1232],
       "id": "8e854e98-ec63-40d0-b839-5bf081600c46",
       "name": "When clicking 'Execute workflow'"
     },
@@ -19,10 +16,7 @@
       },
       "type": "n8n-nodes-base.s3",
       "typeVersion": 1,
-      "position": [
-        2496,
-        1232
-      ],
+      "position": [2496, 1232],
       "id": "64eb3cf6-45cc-440c-b1c9-0b9f7464fb2a",
       "name": "Download Config from S3",
       "credentials": {
@@ -34,14 +28,11 @@
     },
     {
       "parameters": {
-        "jsCode": "const items = $input.all();\n\nif (!items || items.length === 0) {\n  throw new Error('The S3 node returned no items.');\n}\n\nconst item = items[0];\nconst binary = item.binary || {};\n\nlet propertyName;\nif ('data' in binary) {\n  propertyName = 'data';\n} else {\n  const keys = Object.keys(binary);\n  propertyName = keys.length > 0 ? keys[0] : null;\n}\n\nif (!propertyName) {\n  throw new Error('The S3 node did not return config.json as binary data.');\n}\n\nconst rawBuffer = await this.helpers.getBinaryDataBuffer(0, propertyName);\nconst raw = rawBuffer.toString('utf8').replace(/^\\uFEFF/, '');\n\nlet config;\ntry {\n  config = JSON.parse(raw);\n} catch (error) {\n  throw new Error(`Could not parse s3://prompt-monitor-assets/config.json: ${error.message}`);\n}\n\nconst users = config.users;\nconst prompts = config.prompts;\n\nif (!Array.isArray(users)) {\n  throw new Error('config.users must be an array.');\n}\n\nif (!Array.isArray(prompts)) {\n  throw new Error('config.prompts must be an array.');\n}\n\nconst usersById = {};\nfor (const user of users) {\n  usersById[String(user.id)] = user;\n}\n\nconst output = [];\n\nfor (let index = 0; index < prompts.length; index++) {\n  const promptData = prompts[index];\n  const userId = promptData.user_id;\n  const user = usersById[String(userId)];\n\n  if (!user) {\n    throw new Error(`No user found for prompts[${index}].user_id=${userId}`);\n  }\n\n  const username = user.username;\n  const promptName = promptData.name;\n  const topic = promptData.topic;\n  const promptText = promptData.prompt;\n\n  if (!username) {\n    throw new Error(`Missing username for user ID ${userId}`);\n  }\n\n  if (!promptName || !topic || !promptText) {\n    throw new Error(`Incomplete prompt data at prompts[${index}]`);\n  }\n\n  output.push({\n    json: {\n      user_id: user.id,\n      username: username,\n      email: user.email,\n      prompt_name: promptName,\n      topic: topic,\n      prompt: promptText\n    }\n  });\n}\n\nreturn output;"
+        "jsCode": "const items = $input.all();\n\nif (!items || items.length === 0) {\n  throw new Error('The S3 node returned no items.');\n}\n\nconst item = items[0];\nconst binary = item.binary || {};\n\nlet propertyName;\nif ('data' in binary) {\n  propertyName = 'data';\n} else {\n  const keys = Object.keys(binary);\n  propertyName = keys.length > 0 ? keys[0] : null;\n}\n\nif (!propertyName) {\n  throw new Error('The S3 node did not return config.json as binary data.');\n}\n\nconst rawBuffer = await this.helpers.getBinaryDataBuffer(0, propertyName);\nconst raw = rawBuffer.toString('utf8').replace(/^\\uFEFF/, '');\n\nlet config;\ntry {\n  config = JSON.parse(raw);\n} catch (error) {\n  throw new Error(`Could not parse s3://prompt-monitor-assets/config.json: ${error.message}`);\n}\n\nconst users = config.users;\nconst prompts = config.prompts;\n\nif (!Array.isArray(users)) {\n  throw new Error('config.users must be an array.');\n}\n\nif (!Array.isArray(prompts)) {\n  throw new Error('config.prompts must be an array.');\n}\n\nconst usersById = {};\nfor (const user of users) {\n  usersById[String(user.id)] = user;\n}\n\nconst output = [];\n\nfor (let index = 0; index < prompts.length; index++) {\n  const promptData = prompts[index];\n  const userId = promptData.user_id;\n  const user = usersById[String(userId)];\n\n  if (!user) {\n    throw new Error(`No user found for prompts[${index}].user_id=${userId}`);\n  }\n\n  const username = user.username;\n  const promptName = promptData.name;\n  const topic = promptData.topic;\n  const promptKey = promptData.prompt_key;\n\n  if (!username) {\n    throw new Error(`Missing username for user ID ${userId}`);\n  }\n\n  if (!promptName || !topic || !promptKey) {\n    throw new Error(`Incomplete prompt data at prompts[${index}] (missing name, topic, or prompt_key)`);\n  }\n\n  output.push({\n    json: {\n      user_id: user.id,\n      username: username,\n      email: user.email,\n      prompt_name: promptName,\n      topic: topic,\n      prompt_key: promptKey\n    }\n  });\n}\n\nreturn output;"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        2736,
-        1232
-      ],
+      "position": [2736, 1232],
       "id": "6e1ff050-c688-46c2-abff-50719937e8e5",
       "name": "Create Units of Work"
     },
@@ -51,12 +42,37 @@
       },
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 3,
-      "position": [
-        2976,
-        1232
-      ],
+      "position": [2976, 1232],
       "id": "83c474d4-dd5c-4353-af1f-e47145663d32",
       "name": "Loop Over Units of Work"
+    },
+    {
+      "parameters": {
+        "bucketName": "prompt-monitor-assets",
+        "fileKey": "={{ $json.prompt_key }}",
+        "binaryPropertyName": "prompt_data"
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [3216, 1312],
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "name": "Download Prompt from S3",
+      "credentials": {
+        "s3": {
+          "id": "PHdWvL5exC78NlrA",
+          "name": "Minio"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst output = [];\n\nfor (let i = 0; i < items.length; i++) {\n  const item = items[i];\n\n  const promptBuffer = await this.helpers.getBinaryDataBuffer(i, 'prompt_data');\n  const promptText = promptBuffer.toString('utf8').replace(/^\\uFEFF/, '').trim();\n\n  if (!promptText) {\n    throw new Error(`Prompt file is empty for prompt_key=${item.json.prompt_key}`);\n  }\n\n  output.push({\n    json: {\n      ...item.json,\n      prompt: promptText\n    }\n  });\n}\n\nreturn output;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [3456, 1312],
+      "id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+      "name": "Inject Prompt Text"
     },
     {
       "parameters": {
@@ -81,23 +97,17 @@
       },
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.3,
-      "position": [
-        3216,
-        1312
-      ],
+      "position": [3696, 1312],
       "id": "a98bd116-29a2-49e1-82ff-eb7ea0a94d2a",
       "name": "Call 'Prompt to S3'"
     },
     {
       "parameters": {
-        "jsCode": "const items = $input.all();\nconst configItems = $('Create Units of Work').all();\n\n// Build lookup: user_id -> email\nconst emailMap = {};\nfor (const ci of configItems) {\n  emailMap[String(ci.json.user_id)] = ci.json.email;\n}\n\nreturn items\n  .filter(item => item.json.success === true)\n  .map(item => {\n    const uid = String(item.json.user_id);\n    // Take only the first uploaded_key\n    const htmlKey = Array.isArray(item.json.uploaded_keys)\n      ? item.json.uploaded_keys[0]\n      : null;\n\n    if (!htmlKey) {\n      throw new Error(`No uploaded_keys found for user_id=${uid}, prompt=${item.json.prompt_name}`);\n    }\n\n    return {\n      json: {\n        ...item.json,\n        email: emailMap[uid] ?? null,\n        html_key: htmlKey\n      }\n    };\n  });"
+        "jsCode": "const items = $input.all();\nconst configItems = $('Create Units of Work').all();\n\n// Build lookup: user_id -> email\nconst emailMap = {};\nfor (const ci of configItems) {\n  emailMap[String(ci.json.user_id)] = ci.json.email;\n}\n\nreturn items\n  .filter(item => item.json.success === true)\n  .map(item => {\n    const uid = String(item.json.user_id);\n    const htmlKey = Array.isArray(item.json.uploaded_keys)\n      ? item.json.uploaded_keys[0]\n      : null;\n\n    if (!htmlKey) {\n      throw new Error(`No uploaded_keys found for user_id=${uid}, prompt=${item.json.prompt_name}`);\n    }\n\n    return {\n      json: {\n        ...item.json,\n        email: emailMap[uid] ?? null,\n        html_key: htmlKey\n      }\n    };\n  });"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        3216,
-        1104
-      ],
+      "position": [3216, 1104],
       "id": "844eee42-61ed-4eca-a685-80f9ead48d9e",
       "name": "Enrich With Email"
     },
@@ -107,10 +117,7 @@
       },
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 3,
-      "position": [
-        3456,
-        1104
-      ],
+      "position": [3456, 1104],
       "id": "75e59bff-c3e0-4d2d-b1e4-28cfd8e926a8",
       "name": "Loop Over Emails"
     },
@@ -122,10 +129,7 @@
       },
       "type": "n8n-nodes-base.s3",
       "typeVersion": 1,
-      "position": [
-        3696,
-        1120
-      ],
+      "position": [3696, 1120],
       "id": "1d51a64f-fe32-468b-9b1a-53e10e119bd9",
       "name": "Download HTML from S3",
       "credentials": {
@@ -137,14 +141,11 @@
     },
     {
       "parameters": {
-        "jsCode": "const items = $input.all();\n\nconst output = [];\n\nfor (let i = 0; i < items.length; i++) {\n  const item = items[i];\n\n  // Always index 0: each iteration has exactly 1 item (batch size = 1)\n  const htmlBuffer = await this.helpers.getBinaryDataBuffer(0, 'html_data');\n  const htmlContent = htmlBuffer.toString('utf8');\n\n  output.push({\n    json: {\n      ...item.json,\n      html_body: htmlContent\n    }\n  });\n}\n\nreturn output;"
+        "jsCode": "const items = $input.all();\n\nconst output = [];\n\nfor (let i = 0; i < items.length; i++) {\n  const item = items[i];\n\n  const htmlBuffer = await this.helpers.getBinaryDataBuffer(0, 'html_data');\n  const htmlContent = htmlBuffer.toString('utf8');\n\n  output.push({\n    json: {\n      ...item.json,\n      html_body: htmlContent\n    }\n  });\n}\n\nreturn output;"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        3936,
-        1120
-      ],
+      "position": [3936, 1120],
       "id": "9f087796-a6e2-4be5-b755-d3a44e52c338",
       "name": "Extract HTML Body"
     },
@@ -158,10 +159,7 @@
       },
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2.1,
-      "position": [
-        4192,
-        1120
-      ],
+      "position": [4192, 1120],
       "id": "18c22999-b7db-4cb4-9767-c93a1fba5106",
       "name": "Send an Email",
       "webhookId": "02e9f386-7844-4b2d-a044-6e8200f84545",
@@ -176,122 +174,46 @@
   "pinData": {},
   "connections": {
     "When clicking 'Execute workflow'": {
-      "main": [
-        [
-          {
-            "node": "Download Config from S3",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+      "main": [[{"node": "Download Config from S3", "type": "main", "index": 0}]]
     },
     "Download Config from S3": {
-      "main": [
-        [
-          {
-            "node": "Create Units of Work",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+      "main": [[{"node": "Create Units of Work", "type": "main", "index": 0}]]
     },
     "Create Units of Work": {
-      "main": [
-        [
-          {
-            "node": "Loop Over Units of Work",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+      "main": [[{"node": "Loop Over Units of Work", "type": "main", "index": 0}]]
     },
     "Loop Over Units of Work": {
       "main": [
-        [
-          {
-            "node": "Enrich With Email",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Call 'Prompt to S3'",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        [{"node": "Enrich With Email", "type": "main", "index": 0}],
+        [{"node": "Download Prompt from S3", "type": "main", "index": 0}]
       ]
+    },
+    "Download Prompt from S3": {
+      "main": [[{"node": "Inject Prompt Text", "type": "main", "index": 0}]]
+    },
+    "Inject Prompt Text": {
+      "main": [[{"node": "Call 'Prompt to S3'", "type": "main", "index": 0}]]
     },
     "Call 'Prompt to S3'": {
-      "main": [
-        [
-          {
-            "node": "Loop Over Units of Work",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+      "main": [[{"node": "Loop Over Units of Work", "type": "main", "index": 0}]]
     },
     "Enrich With Email": {
-      "main": [
-        [
-          {
-            "node": "Loop Over Emails",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+      "main": [[{"node": "Loop Over Emails", "type": "main", "index": 0}]]
     },
     "Loop Over Emails": {
       "main": [
         [],
-        [
-          {
-            "node": "Download HTML from S3",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        [{"node": "Download HTML from S3", "type": "main", "index": 0}]
       ]
     },
     "Download HTML from S3": {
-      "main": [
-        [
-          {
-            "node": "Extract HTML Body",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+      "main": [[{"node": "Extract HTML Body", "type": "main", "index": 0}]]
     },
     "Extract HTML Body": {
-      "main": [
-        [
-          {
-            "node": "Send an Email",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+      "main": [[{"node": "Send an Email", "type": "main", "index": 0}]]
     },
     "Send an Email": {
-      "main": [
-        [
-          {
-            "node": "Loop Over Emails",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+      "main": [[{"node": "Loop Over Emails", "type": "main", "index": 0}]]
     }
   },
   "active": false,
