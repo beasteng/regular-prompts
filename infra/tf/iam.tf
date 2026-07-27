@@ -1,4 +1,3 @@
-# ── Trust policy ──────────────────────────────────────────────────
 data "aws_iam_policy_document" "lambda_assume" {
   statement {
     effect  = "Allow"
@@ -10,31 +9,23 @@ data "aws_iam_policy_document" "lambda_assume" {
   }
 }
 
-resource "aws_iam_role" "start_ec2_lambda" {
-  name               = "start-ec2-lambda-role"
+resource "aws_iam_role" "ec2_lambda" {
+  name               = "ec2-pipeline-lambda-role"
   assume_role_policy = data.aws_iam_policy_document.lambda_assume.json
   tags               = var.tags
 }
 
-# ── Permissions ───────────────────────────────────────────────────
-data "aws_iam_policy_document" "start_ec2_perms" {
-  # EC2: describe + start this specific instance only
+data "aws_iam_policy_document" "ec2_lambda_perms" {
   statement {
     effect  = "Allow"
     actions = [
       "ec2:StartInstances",
+      "ec2:StopInstances",
       "ec2:DescribeInstances",
     ]
     resources = ["*"]
-    # Scope StartInstances to instance tag for extra safety
-    condition {
-      test     = "StringEquals"
-      variable = "aws:ResourceTag/ManagedBy"
-      values   = ["terraform"]
-    }
   }
 
-  # CloudWatch Logs
   statement {
     effect  = "Allow"
     actions = [
@@ -46,8 +37,8 @@ data "aws_iam_policy_document" "start_ec2_perms" {
   }
 }
 
-resource "aws_iam_role_policy" "start_ec2_inline" {
-  name   = "start-ec2-inline-policy"
-  role   = aws_iam_role.start_ec2_lambda.id
-  policy = data.aws_iam_policy_document.start_ec2_perms.json
+resource "aws_iam_role_policy" "ec2_lambda_inline" {
+  name   = "ec2-pipeline-inline-policy"
+  role   = aws_iam_role.ec2_lambda.id
+  policy = data.aws_iam_policy_document.ec2_lambda_perms.json
 }

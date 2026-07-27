@@ -5,31 +5,27 @@ variable "aws_region" {
 }
 
 variable "ec2_instance_id" {
-  description = "EC2 instance ID to start on schedule"
+  description = "EC2 instance ID to start/stop on schedule"
   type        = string
-  # e.g. "i-0abc123def456789"
 }
 
-variable "schedule_expression" {
-  description = "EventBridge cron or rate expression (UTC)"
+variable "start_schedule" {
+  description = "EventBridge cron for START (UTC). Stop fires 30 min later."
   type        = string
   default     = "cron(0 2 * * ? *)"   # 02:00 UTC daily
-  # Other examples:
-  # "cron(0 6 ? * MON-FRI *)"  → weekdays 06:00 UTC
-  # "rate(12 hours)"            → every 12 hours
 }
 
 variable "lambda_timeout" {
-  description = "Lambda timeout in seconds (max 900)"
+  description = "Lambda timeout in seconds"
   type        = number
-  default     = 360   # 6 min — enough for EC2 start waiter
+  default     = 360
 }
 
 variable "tags" {
   description = "Tags applied to all resources"
   type        = map(string)
   default = {
-    Project     = "litellm-pipeline"
-    ManagedBy   = "terraform"
+    Project   = "litellm-pipeline"
+    ManagedBy = "terraform"
   }
 }

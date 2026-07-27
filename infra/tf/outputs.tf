@@ -1,19 +1,24 @@
-output "lambda_function_name" {
-  description = "Name of the Lambda function"
-  value       = aws_lambda_function.start_ec2.function_name
+output "start_lambda_name" {
+  value = aws_lambda_function.start_ec2.function_name
 }
 
-output "lambda_function_arn" {
-  description = "ARN of the Lambda function"
-  value       = aws_lambda_function.start_ec2.arn
+output "stop_lambda_name" {
+  value = aws_lambda_function.stop_ec2.function_name
 }
 
-output "eventbridge_rule_name" {
-  description = "EventBridge rule name"
-  value       = aws_cloudwatch_event_rule.trigger.name
+output "start_schedule" {
+  value = var.start_schedule
 }
 
-output "log_group" {
-  description = "CloudWatch log group for Lambda"
-  value       = aws_cloudwatch_log_group.lambda_logs.name
+output "stop_schedule" {
+  description = "Auto-derived stop schedule (start + 30 min)"
+  value       = local.stop_schedule
+}
+
+output "log_group_start" {
+  value = aws_cloudwatch_log_group.start_lambda_logs.name
+}
+
+output "log_group_stop" {
+  value = aws_cloudwatch_log_group.stop_lambda_logs.name
 }
