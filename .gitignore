@@ -1,1 +1,2 @@
 .env
+/infra/tf/terraform.tfvars

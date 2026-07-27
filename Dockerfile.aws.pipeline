@@ -1,0 +1,5 @@
+FROM python:3.12-slim
+WORKDIR /app
+RUN pip install --no-cache-dir boto3 requests
+COPY pipeline_runner.py .
+CMD ["python", "-u", "pipeline_runner.py"]
