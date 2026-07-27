@@ -1,0 +1,20 @@
+Perform a live web search for the latest news regarding [LOCATION / INDUSTRY / CONTEXT] published strictly within [TIMEFRAME, e.g., the LAST 24 HOURS] on the following topics:
+1. [TOPIC 1]
+2. [TOPIC 2]
+3. [TOPIC 3]
+4. [TOPIC 4]
+
+### Strict Content & Timeframe Rules
+- Timeframe: ONLY include news published within [TIMEFRAME]. Exclude anything older.
+- Accuracy over Quantity: Do not invent, extrapolate, or duplicate items to reach a target number. If fewer genuine news updates exist within the specified timeframe, output only the verified items found (up to [MAX NUMBER OF BULLETS, e.g., 20]).
+
+### Strict URL & Link Rules (CRITICAL)
+- Link Accuracy: Every item MUST include a direct HTML hyperlink (<a href="URL" target="_blank">[LINK TEXT FORMAT, e.g., Source Name]</a>).
+- No URL Hallucination: Do NOT guess, alter, shorten, or reconstruct any URLs. Use ONLY exact, complete web addresses retrieved directly from search results.
+- Source Requirement: If a verified direct link to the specific article is not found in the search results, exclude that news item entirely.
+
+### Output Requirements
+- Language: [TARGET LANGUAGE, e.g., English]
+- Output Format: [FORMAT, e.g., Clean HTML snippet using an unordered list (<ul> and <li>)]
+- Item Structure:
+  <li>[Brief summary of the update] — <a href="EXACT_VERIFIED_URL" target="_blank">[Publisher / Source Name]</a></li>
