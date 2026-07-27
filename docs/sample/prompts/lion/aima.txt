@@ -6,5 +6,8 @@ Summarize the most important news from Portugal about changes in:
 
 Findings should be fresh - published in the LAST 24 HOURS ONLY in 20 bullet points.
 STRICTLY EXCLUDE any news older than 24 hours.
-Output your findings in English.
-Each bullet should have a link to the data source so I can open and read the original.
+
+Output requirements:
+* format is HTML
+* Output your findings in English.
+* Each bullet should have a clickable link (<a href='...'>) - paste exactly that website URL, which gave you date for each bullet
