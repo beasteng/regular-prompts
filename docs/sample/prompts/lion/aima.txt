@@ -1,13 +1,20 @@
-Summarize the most important news from Portugal about changes in:
-* AIMA
-* SEF
-* temporary protection for Ukrainians
-* digital nomads visas
+Perform a live web search for the latest news in Portugal published strictly within the LAST 24 HOURS regarding the following topics:
+1. AIMA (Agência para a Integração, Migrações e Asilo)
+2. SEF (or related transition/immigration enforcement updates)
+3. Temporary protection for Ukrainians in Portugal
+4. Digital nomad visas in Portugal
 
-Findings should be fresh - published in the LAST 24 HOURS ONLY in 20 bullet points.
-STRICTLY EXCLUDE any news older than 24 hours.
+### Strict Content & Timeframe Rules
+- Timeframe: ONLY include news published in the LAST 24 HOURS. Exclude anything older.
+- Real News Only: If there are fewer than 20 distinct news updates in the past 24 hours, provide only the actual items found. Do not invent or repeat news to reach 20 items.
 
-Output requirements:
-* format is HTML
-* Output your findings in English.
-* Each bullet should have a clickable link (<a href='...'>) - paste exactly that website URL, which gave you date for each bullet
+### Strict URL & Link Rules (CRITICAL)
+- Link Accuracy: Every bullet point MUST include a direct HTML hyperlink (<a href="URL" target="_blank">Source Title/Outlet</a>).
+- No URL Hallucination: Do NOT guess, alter, shorten, or reconstruct any URLs. Use ONLY the exact, complete web addresses retrieved directly from search results.
+- If a verified direct link to the article is not available in search results, do not include that item.
+
+### Output Requirements
+- Language: English
+- Output Format: Clean HTML snippet using an unordered list (<ul> and <li>).
+- Structure per item: 
+  <li>[Brief, clear summary of the news item] — <a href="EXACT_VERIFIED_URL" target="_blank">Source Name</a></li>
