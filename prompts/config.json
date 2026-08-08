@@ -12,6 +12,12 @@
       "name": "Top 20 Portugal AIMA, SEF, immigration, nomads last 24h",
       "topic": "AIMA",
       "prompt_key": "prompts/lion/aima.txt"
+    },
+    {
+      "user_id": 1,
+      "name": "Top 20 Networking signals",
+      "topic": "networking",
+      "prompt_key": "prompts/lion/signals.txt"
     }
   ]
 }

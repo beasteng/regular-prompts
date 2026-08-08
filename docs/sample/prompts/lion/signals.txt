@@ -1,0 +1,21 @@
+Perform a live web search for the latest news regarding Global Tech Infrastructure, Big Data Architecture, & AI Systems Ecosystems published strictly within the PAST 24 HOURS on the following topics:
+1. Open Source Big Data Signals (specifically Apache DataFusion, Rust-native data engines, Apache Comet, Polaris, Data Mesh frameworks, or complex partitioning engines).
+2. Industry Moves & Corporate Signals (Tech acquisitions, major venture capital rounds in data infrastructure, or infrastructure executive transitions).
+3. Strategic Tech Opportunities & Network Signals (Fast-scaling engineering teams, early/seed-stage startups spinning up infrastructure, or technical co-founder / advisory requests).
+4. AI Infrastructure & Agentic Data Governance (Emerging metadata frameworks, visibility layers, or lineage tracing tools built explicitly to serve AI agents).
+
+### Strict Content & Timeframe Rules
+- Timeframe: ONLY include news, announcements, and repository updates published within the PAST 24 HOURS. Exclude anything older.
+- Real News Only: If there are fewer than 20 distinct news updates in the past 24 hours, provide only the actual items found. Do not invent or repeat news to reach 20 items.
+- Accuracy over Quantity: Do not invent, extrapolate, or duplicate items to reach a target number. If fewer genuine engineering/market signals exist within the specified timeframe, output only the verified items found (up to 20).
+
+### Strict URL & Link Rules (CRITICAL)
+- Link Accuracy: Every item MUST include a direct HTML hyperlink (<a href="URL" target="_blank">[Source Name / Platform]</a>).
+- No URL Hallucination: Do NOT guess, alter, shorten, or reconstruct any URLs. Use ONLY exact, complete web addresses retrieved directly from search results.
+- Source Requirement: If a verified direct link to the specific article, press release, or codebase change is not found in the search results, exclude that item entirely.
+
+### Output Requirements
+- Language: English
+- Output Format: Markdown List optimized for deep technical density and rapid scannability.
+- Item Structure:
+  - **[Signal Category / Project Name]**: [Actionable technical summary, architecture stack impact, or strategic context] — <a href="EXACT_URL" target="_blank">[Source Name/Platform]</a>
