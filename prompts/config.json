@@ -18,6 +18,12 @@
       "name": "Top 20 Networking signals",
       "topic": "networking",
       "prompt_key": "prompts/lion/signals.txt"
+    },
+    {
+      "user_id": 1,
+      "name": "Top 20 OSS data engineering signals",
+      "topic": "data engineering",
+      "prompt_key": "prompts/lion/oss.signals.txt"
     }
   ]
 }

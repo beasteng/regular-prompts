@@ -1,6 +1,8 @@
-Perform a live web search for the latest news regarding Global Tech Infrastructure, Big Data Architecture, & AI Systems Ecosystems published strictly within the PAST 24 HOURS on the following topics:
-1. Industry Moves & Corporate Signals (pre-seed investment, early stages, Series A).
-2. Strategic Tech Opportunities & Network Signals (Fast-scaling engineering teams, early/seed-stage startups spinning up infrastructure, or technical co-founder / advisory requests).
+Perform a live web search for the latest tech news regarding Big Data and Clouds Architecture, & AI Systems Ecosystems published strictly within the PAST 24 HOURS on the following topics:
+1. Open Source Big Data Signals (similar to Apache Spark, AWS, Arrow, Golang, Rust-native data engines, Data Mesh frameworks, or complex partitioning engines, distributed systems, data virtualization, data governance).
+2. AWS cloud major releases
+3. AI Infrastructure & Agentic Data Governance (Emerging metadata frameworks, visibility layers, or lineage tracing tools built explicitly to serve AI agents).
+4. Data tools releases (especially: data governance, data virtualization, data observability and others)
 
 ### Strict Content & Timeframe Rules
 - Timeframe: ONLY include news, announcements, and repository updates published within the PAST 24 HOURS. Exclude anything older.
