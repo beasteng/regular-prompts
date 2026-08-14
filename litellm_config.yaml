@@ -33,16 +33,16 @@ model_list:
   # --- Option E: Gemini Flash (Google AI Studio key) [ENABLED] ---
   - model_name: default
     litellm_params:
+      model: gemini/gemini-3.7-flash
+      api_key: os.environ/GEMINI_API_KEY
+      web_search_options:
+        search_context_size: "medium" # Options: "low", "medium", "high"
+  - model_name: fallback
+    litellm_params:
       model: gemini/gemini-3.6-flash
       api_key: os.environ/GEMINI_API_KEY
       web_search_options:
         search_context_size: "low" # Options: "low", "medium", "high"
-  - model_name: fallback
-    litellm_params:
-      model: gemini/gemini-3.1-flash-lite
-      api_key: os.environ/GEMINI_API_KEY
-      web_search_options:
-        search_context_size: "medium" # Options: "low", "medium", "high"
 
 litellm_settings:
   drop_params: true       # ignore unknown params silently
@@ -53,5 +53,5 @@ general_settings:
   store_model_in_db: true
   store_prompts_in_spend_logs: true
 
-#router_settings:
-#  fallbacks: [{"default": ["fallback"]}]
+router_settings:
+  fallbacks: [{"default": ["fallback"]}]
