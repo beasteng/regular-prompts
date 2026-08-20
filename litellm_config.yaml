@@ -36,7 +36,7 @@ model_list:
       model: gemini/gemini-3.7-flash
       api_key: os.environ/GEMINI_API_KEY
       web_search_options:
-        search_context_size: "medium" # Options: "low", "medium", "high"
+        search_context_size: "low" # Options: "low", "medium", "high"
   - model_name: fallback
     litellm_params:
       model: gemini/gemini-3.6-flash
