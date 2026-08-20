@@ -37,6 +37,13 @@ model_list:
       api_key: os.environ/GEMINI_API_KEY
       web_search_options:
         search_context_size: "low" # Options: "low", "medium", "high"
+  - model_name: default_vertex
+    litellm_params:
+      model: vertex_ai/gemini-3.7-flash
+      vertex_project: os.environ/GEMINI_PROJECT_ID
+      vertex_location: "europe-west1"
+      web_search_options:
+        search_context_size: "low" # Options: "low", "medium", "high"
   - model_name: fallback
     litellm_params:
       model: gemini/gemini-3.6-flash
@@ -54,4 +61,10 @@ general_settings:
   store_prompts_in_spend_logs: true
 
 router_settings:
-  fallbacks: [{"default": ["fallback"]}]
+  fallbacks: [
+    {"default": ["fallback"]}
+  ]
+  num_retries: 3
+  retry_policy:
+    initial_delay: 2
+    backoff_factor: 2
