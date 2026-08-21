@@ -3,53 +3,28 @@
 # Change the model here; n8n workflows never need updating.
 
 model_list:
-
-  # --- Option A: OpenRouter (one key, many models) [DEFAULT] ---
-  # - model_name: default
-  #   litellm_params:
-  #     model: openrouter/anthropic/claude-opus-4-8
-  #     api_key: os.environ/OPENROUTER_API_KEY
-  #     api_base: https://openrouter.ai/api/v1
-
-  # --- Option B: Anthropic direct (claude-haiku-4.5) [previously enabled] ---
-  # - model_name: default
-  #   litellm_params:
-  #     model: claude-haiku-4.5
-  #     api_key: os.environ/ANTHROPIC_API_KEY
-
-  # --- Option C: local Ollama (no external API key needed) ---
-  # - model_name: default
-  #   litellm_params:
-  #     model: ollama/llama3
-  #     api_base: http://ollama:11434
-
-  # --- Option D: Free Gemini for googling (Google Search grounding) ---
-  # - model_name: default
-  #   litellm_params:
-  #     model: gemini/gemini-2.5-flash
-  #     api_key: os.environ/GEMINI_API_KEY
-  #     google_search: true
-
   # --- Option E: Gemini Flash (Google AI Studio key) [ENABLED] ---
   - model_name: default
     litellm_params:
       model: gemini/gemini-3.7-flash
       api_key: os.environ/GEMINI_API_KEY
       web_search_options:
-        search_context_size: "low" # Options: "low", "medium", "high"
-  - model_name: default_vertex
+        search_context_size: "low"
+
+  - model_name: fallback_vertex
     litellm_params:
       model: vertex_ai/gemini-3.7-flash
       vertex_project: os.environ/GEMINI_PROJECT_ID
-      vertex_location: "europe-west1"
+      vertex_location: "global"
       web_search_options:
-        search_context_size: "low" # Options: "low", "medium", "high"
+        search_context_size: "low"
+
   - model_name: fallback
     litellm_params:
       model: gemini/gemini-3.6-flash
       api_key: os.environ/GEMINI_API_KEY
       web_search_options:
-        search_context_size: "low" # Options: "low", "medium", "high"
+        search_context_size: "low"
 
 litellm_settings:
   drop_params: true       # ignore unknown params silently
@@ -61,10 +36,9 @@ general_settings:
   store_prompts_in_spend_logs: true
 
 router_settings:
-  fallbacks: [
-    {"default": ["fallback"]}
-  ]
-  num_retries: 3
+  fallbacks:
+    - default: ["fallback_vertex", "fallback"]
+  num_retries: 1
   retry_policy:
     initial_delay: 2
     backoff_factor: 2

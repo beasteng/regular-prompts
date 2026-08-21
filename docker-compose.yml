@@ -103,6 +103,9 @@ services:
     ports: ["4000:4000"]
     volumes:
       - ./litellm_config.yaml:/app/config.yaml
+      - ./keys/vertex_ai.key.json:/app/gcp-credentials.json
+    environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/gcp-credentials.json
     command: ["--config", "/app/config.yaml", "--port", "4000"]
     env_file: [.env]
     depends_on: [postgres]
