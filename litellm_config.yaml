@@ -6,10 +6,11 @@ model_list:
   # --- Option E: Gemini Flash (Google AI Studio key) [ENABLED] ---
   - model_name: default
     litellm_params:
-      model: gemini/gemini-3.7-flash
-      api_key: os.environ/GEMINI_API_KEY
+      model: vertex_ai/gemini-3.8-flash
+      vertex_project: os.environ/GEMINI_PROJECT_ID
+      vertex_location: "global"
       web_search_options:
-        search_context_size: "low"
+        search_context_size: "medium"
 
   - model_name: fallback_vertex
     litellm_params:
@@ -17,11 +18,11 @@ model_list:
       vertex_project: os.environ/GEMINI_PROJECT_ID
       vertex_location: "global"
       web_search_options:
-        search_context_size: "low"
+        search_context_size: "medium"
 
   - model_name: fallback
     litellm_params:
-      model: gemini/gemini-3.6-flash
+      model: gemini/gemini-3.7-flash
       api_key: os.environ/GEMINI_API_KEY
       web_search_options:
         search_context_size: "low"
